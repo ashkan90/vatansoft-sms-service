@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"vatansoft-sms-service/internal/app/dto/request"
 	"vatansoft-sms-service/internal/app/orchestration"
@@ -10,7 +9,6 @@ import (
 
 type MobilisimHandler interface {
 	OneToN(c *fiber.Ctx) error
-	Test(c *fiber.Ctx) error
 }
 
 type mobilisimHandler struct {
@@ -26,22 +24,19 @@ func NewMobilisimHandler(mo orchestration.MobilisimOrchestrator) MobilisimHandle
 func (m *mobilisimHandler) OneToN(c *fiber.Ctx) error {
 	var req request.OneToN
 	if bErr := c.BodyParser(&req); bErr != nil {
-		logrus.Error("Body parser gave error. For detail: " + bErr.Error())
-		return c.SendStatus(http.StatusBadRequest)
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "Body parser gave error. For detail: " + bErr.Error(),
+		})
 	}
+
+	// TODO: Implement request validator.
 
 	res, err := m.mobilisimOrchestrator.OneToN(c.Context(), req)
 	if err != nil {
-		logrus.Error(err)
-		return c.SendStatus(fiber.StatusBadRequest)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
 	}
 
 	return c.JSON(res)
-}
-
-func (m *mobilisimHandler) Test(c *fiber.Ctx) error {
-
-	return c.JSON(map[string]string{
-		"status": "ok",
-	})
 }

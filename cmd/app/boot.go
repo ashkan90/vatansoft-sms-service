@@ -15,7 +15,10 @@ func boot(l *logrus.Logger, appConf app.ApplicationConfigs) (*server, error) {
 	var mqProducer = rabbit.NewMessagingClient(l)
 
 	// Open broker connection
-	mqProducer.ConnectToBroker(appConf.Rabbit.URL)
+	err := mqProducer.ConnectToBroker(appConf.Rabbit.URL)
+	if err != nil {
+		return nil, err
+	}
 
 	return &server{
 		logger:          l,

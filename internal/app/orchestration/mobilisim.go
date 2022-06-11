@@ -10,7 +10,6 @@ import (
 
 type MobilisimOrchestrator interface {
 	OneToN(ctx context.Context, req request.OneToN) (*model.ResourceOneToN, error)
-	Test(ctx context.Context) error
 }
 
 type mobilisimOrchestrator struct {
@@ -29,8 +28,4 @@ func (m *mobilisimOrchestrator) OneToN(ctx context.Context, req request.OneToN) 
 		return nil, nil
 	}
 	return m.mobilisimService.OneToN(ctx, req.ToPayload())
-}
-
-func (m *mobilisimOrchestrator) Test(ctx context.Context) error {
-	return m.mobilisimService.Test(ctx)
 }

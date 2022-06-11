@@ -1,6 +1,7 @@
 package rabbit
 
 import (
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
@@ -9,7 +10,7 @@ import (
 )
 
 type Client interface {
-	ConnectToBroker(connectionString string)
+	ConnectToBroker(connectionString string) error
 	PublishOnQueue(msg []byte, queueName string) error
 	Subscribe(exchangeName string, exchangeType string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	SubscribeToQueue(queueName string, consumerName string, handlerFunc func(amqp.Delivery)) error
@@ -27,18 +28,20 @@ func NewMessagingClient(l *logrus.Logger) Client {
 	}
 }
 
-func (m *MessagingClient) ConnectToBroker(connectionString string) {
+func (m *MessagingClient) ConnectToBroker(connectionString string) error {
 	if connectionString == "" {
-		m.logger.Panic("Cannot initialize connection to broker, connectionString not set. Have you initialized?")
-		return
+		m.logger.Fatal("Cannot initialize connection to broker, connectionString not set. Have you initialized?")
+		return errors.New("empty connection string given")
 	}
 
 	var err error
 	m.conn, err = amqp.Dial(brokerURL(connectionString))
 	if err != nil {
-		m.logger.Panic("Failed to connect to AMQP compatible broker at: " + connectionString)
-		return
+		m.logger.Fatal("Failed to connect to AMQP compatible broker at: " + connectionString)
+		return err
 	}
+
+	return nil
 }
 
 func (m *MessagingClient) PublishOnQueue(body []byte, queueName string) error {

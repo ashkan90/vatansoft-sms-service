@@ -2,6 +2,7 @@ package request
 
 import (
 	"vatansoft-sms-service/pkg/event"
+	"vatansoft-sms-service/pkg/event/schema"
 	"vatansoft-sms-service/pkg/mobilisimclient/model"
 )
 
@@ -41,12 +42,15 @@ func (otn OneToN) ToPayload() model.RequestOneToN {
 	return dto
 }
 
-func (otn OneToN) ToEvent() event.OneToNEvent {
-	return event.OneToNEvent{
-		Message:     otn.Message,
-		MessageType: otn.MessageType,
-		Sender:      otn.Sender,
-		SendTime:    otn.SendTime,
-		Numbers:     otn.Numbers,
+func (otn OneToN) ToEvent() *event.OneToNEvent {
+	return &event.OneToNEvent{
+		EventType: schema.MobilisimOneToNEventType,
+		EventData: event.OneToNEventData{
+			Message:     otn.Message,
+			MessageType: otn.MessageType,
+			Sender:      otn.Sender,
+			SendTime:    otn.SendTime,
+			Numbers:     otn.Numbers,
+		},
 	}
 }

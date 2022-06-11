@@ -33,5 +33,4 @@ func (r *route) mobilisimRoutes(gr fiber.Router) {
 	mobilisim := gr.Group("/mobilisim")
 
 	mobilisim.Post("/oneToN", r.mobilisimHandler.OneToN)
-	mobilisim.Post("/test", r.mobilisimHandler.Test)
 }
