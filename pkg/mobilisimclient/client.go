@@ -3,6 +3,7 @@ package mobilisimclient
 import (
 	"context"
 	"errors"
+	"fmt"
 	"vatansoft-sms-service/pkg/httpclient"
 	"vatansoft-sms-service/pkg/mobilisimclient/model"
 )
@@ -10,34 +11,28 @@ import (
 type Client interface {
 	HandleRequest(ctx context.Context, req httpclient.Request) (*httpclient.Response, error)
 
+	PrepareHeaders() map[string]string
+	MobilisimURL(uri string) string
+
 	OneToN(ctx context.Context, r model.RequestOneToN) (*model.ResourceOneToN, error)
 }
 
 type Config struct {
-	RegisterURL string
-	LoginURL    string
-	SearchURL   string
-	BackendURL  string
-	APIKey      string
+	MobilisimURL string
+	APIKey       string
 }
 
 type client struct {
-	registerURL string
-	loginURL    string
-	searchURL   string
-	backendURL  string
-	apiKey      string
-	httpClient  httpclient.HTTPClient
+	mobilisimURL string
+	apiKey       string
+	httpClient   httpclient.HTTPClient
 }
 
 func NewClient(c Config, hc httpclient.HTTPClient) Client {
 	return &client{
-		registerURL: c.RegisterURL,
-		loginURL:    c.LoginURL,
-		searchURL:   c.SearchURL,
-		backendURL:  c.BackendURL,
-		apiKey:      c.APIKey,
-		httpClient:  hc,
+		mobilisimURL: c.MobilisimURL,
+		apiKey:       c.APIKey,
+		httpClient:   hc,
 	}
 }
 
@@ -52,5 +47,16 @@ func (c *client) HandleRequest(ctx context.Context, req httpclient.Request) (*ht
 	}
 
 	//return nil, c.HandleException(resp)
-	return nil, errors.New("test")
+	return nil, errors.New("code there")
+}
+
+func (c *client) MobilisimURL(uri string) string {
+	return fmt.Sprintf("%s/sms/1/%s", c.mobilisimURL, uri)
+}
+
+func (c *client) PrepareHeaders() map[string]string {
+	return map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Basic " + c.apiKey,
+	}
 }

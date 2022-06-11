@@ -14,12 +14,14 @@ import (
 	"vatansoft-sms-service/internal/app/mobilisim"
 	"vatansoft-sms-service/internal/app/orchestration"
 	"vatansoft-sms-service/pkg/mobilisimclient"
+	"vatansoft-sms-service/pkg/rabbit"
 )
 
 // Injectors from wire.go:
 
-func InitAll(l *logrus.Logger, mc mobilisimclient.Client) app.Router {
-	mobilisimOrchestrator := orchestration.NewMobilisimOrchestrator()
+func InitAll(l *logrus.Logger, mc mobilisimclient.Client, mqp rabbit.Client) app.Router {
+	service := mobilisim.NewMobilisimService(l, mc, mqp)
+	mobilisimOrchestrator := orchestration.NewMobilisimOrchestrator(service)
 	mobilisimHandler := handler.NewMobilisimHandler(mobilisimOrchestrator)
 	router := app.NewRoute(mobilisimHandler)
 	return router

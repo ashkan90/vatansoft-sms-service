@@ -1,0 +1,13 @@
+---
+version: 2.0
+
+application:
+  mobilisim:
+    url: "http://api5.mobilisim.com"
+    api-key: "dmF0YW4zOnJkNHhmN3R3"
+
+  rabbitmq:
+    server-url: "amqp://rabbitmq:rabbitmq@rabbitmq:5672"
+    sms-queue: ""
+    event-bus: ""
+

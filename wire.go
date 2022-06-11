@@ -11,6 +11,7 @@ import (
 	"vatansoft-sms-service/internal/app/mobilisim"
 	"vatansoft-sms-service/internal/app/orchestration"
 	"vatansoft-sms-service/pkg/mobilisimclient"
+	"vatansoft-sms-service/pkg/rabbit"
 )
 
 var serviceProviders = wire.NewSet(
@@ -34,6 +35,7 @@ var allProviders = wire.NewSet(
 func InitAll(
 	l *logrus.Logger,
 	mc mobilisimclient.Client,
+	mqp rabbit.Client,
 ) app.Router {
 	wire.Build(allProviders, app.NewRoute)
 	return nil

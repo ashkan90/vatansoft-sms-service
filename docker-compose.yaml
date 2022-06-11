@@ -1,0 +1,42 @@
+version: '3.3'
+services:
+  vatansoft-sms-service:
+    container_name: vatansoft-sms-service
+    build:
+      context: .
+      dockerfile: deployments/app/Dockerfile
+    ports:
+      - '8080:8080'
+    volumes:
+      - go-modules-volume:/go/pkg/mod
+    networks:
+      - network-sms-service
+    depends_on:
+      - rabbit-mq-node
+    restart: always
+
+#  consumer:
+#    build:
+#      context: .
+#      dockerfile: deployments/consumer/Dockerfile
+#    depends_on:
+#      - rabbit-mq-node
+
+  rabbit-mq-node:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit-mq-node"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "U1dRT0tPRFNRQUxSUENMTk1FUUc="
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+networks:
+  network-sms-service:
+    driver: bridge
+
+volumes:
+  go-modules-volume:
