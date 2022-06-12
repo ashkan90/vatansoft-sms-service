@@ -7,11 +7,11 @@ import (
 )
 
 type OneToN struct {
-	Message     string   `json:"message"`
-	MessageType string   `json:"message_type"`
-	Sender      string   `json:"sender"`
+	Message     string   `json:"message" validate:"required"`
+	MessageType string   `json:"message_type" validate:"required"`
+	Sender      string   `json:"sender" validate:"required"`
 	SendTime    string   `json:"send_time"`
-	Numbers     []string `json:"numbers"`
+	Numbers     []string `json:"numbers" validate:"required"`
 }
 
 func (otn OneToN) ToPayload() model.RequestOneToN {

@@ -8,6 +8,8 @@ import (
 	"vatansoft-sms-service/pkg/constants"
 	"vatansoft-sms-service/pkg/mobilisimclient"
 	"vatansoft-sms-service/pkg/rabbit"
+	"vatansoft-sms-service/pkg/utils"
+	"vatansoft-sms-service/pkg/validation"
 )
 
 type server struct {
@@ -20,6 +22,8 @@ func initServer(sv *server) *fiber.App {
 	fApp := fiber.New(fiber.Config{
 		BodyLimit: constants.AppRequestBodyLimit,
 	})
+
+	sv.initCommonMiddlewares(fApp)
 
 	route := di.InitAll(
 		sv.logger,
@@ -35,4 +39,12 @@ func initServer(sv *server) *fiber.App {
 
 func initLogger() *logrus.Logger {
 	return logrus.New()
+}
+
+func (s *server) initCommonMiddlewares(app *fiber.App) {
+	validator := validation.InitValidator()
+	app.Use(func(c *fiber.Ctx) error {
+		c.Locals(utils.Validator, validator)
+		return c.Next()
+	})
 }

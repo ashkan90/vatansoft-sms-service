@@ -4,7 +4,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"vatansoft-sms-service/internal/app/dto/request"
+	"vatansoft-sms-service/internal/app/dto/resource"
 	"vatansoft-sms-service/internal/app/orchestration"
+	"vatansoft-sms-service/pkg/response"
+	"vatansoft-sms-service/pkg/utils"
 )
 
 type MobilisimHandler interface {
@@ -29,7 +32,12 @@ func (m *mobilisimHandler) OneToN(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: Implement request validator.
+	if vErr := utils.ValidateRequestWithCtx(c.Context(), req); vErr != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
+			"error":   "Unprocessable entity given.",
+			"details": vErr,
+		})
+	}
 
 	res, err := m.mobilisimOrchestrator.OneToN(c.Context(), req)
 	if err != nil {
@@ -38,5 +46,5 @@ func (m *mobilisimHandler) OneToN(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(res)
+	return c.JSON(response.NewSuccessResponse(resource.NewOneToNResource(res)))
 }
