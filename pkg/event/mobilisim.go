@@ -1,6 +1,9 @@
 package event
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"vatansoft-sms-service/pkg/response"
+)
 
 type OneToNEvent struct {
 	EventType string
@@ -21,6 +24,10 @@ func (e *OneToNEvent) Type() string {
 
 func (e *OneToNEvent) Data() interface{} {
 	return e
+}
+
+func (e *OneToNEvent) Response() interface{} {
+	return response.NewMobilisimSuccessResponse(e.EventData.Message, e.EventData.MessageType)
 }
 
 func (e *OneToNEvent) Free() {
