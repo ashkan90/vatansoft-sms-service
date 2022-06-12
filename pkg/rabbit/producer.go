@@ -53,23 +53,23 @@ func (m *MessagingClient) PublishOnQueue(body []byte, queueName string) error {
 
 	// Declare a queue that will be created if not exists with some args
 	queue, err := ch.QueueDeclare(
-		queueName, // our queue name
-		false,     // durable
-		false,     // delete when unused
-		false,     // exclusive
-		false,     // no-wait
-		nil,       // arguments
+		queueName,
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 
 	// Publishes a message onto the queue.
 	err = ch.Publish(
-		"",         // use the default exchange
-		queue.Name, // routing key, e.g. our queue name
-		false,      // mandatory
-		false,      // immediate
+		"",
+		queue.Name,
+		false,
+		false,
 		amqp.Publishing{
 			ContentType: "application/json",
-			Body:        body, // Our JSON body as []byte
+			Body:        body,
 		})
 	m.logger.WithTime(time.Now()).Printf("A message was sent to queue %v: %v", queueName, body)
 

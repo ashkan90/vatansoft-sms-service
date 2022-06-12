@@ -41,10 +41,9 @@ func (ms *mobilisimService) OneToN(ctx context.Context, req model.RequestOneToN)
 }
 
 func (ms *mobilisimService) OneToNEvent(ctx context.Context, e *event.OneToNEvent) {
-	batch := utils.Chunk(e.EventData.Numbers, utils.DefaultChunkSize)
-	e.Free()
-
+	var batch = utils.Chunk(e.EventData.Numbers, utils.DefaultChunkSize)
 	var err error
+	e.Free()
 
 	for _, numbers := range batch {
 		err = ms.mqProducer.PublishOnQueue(e.ToPrepareQueue(numbers), schema.MobilisimQueueName)
