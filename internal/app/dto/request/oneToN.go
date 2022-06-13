@@ -4,6 +4,7 @@ import (
 	"vatansoft-sms-service/pkg/event"
 	"vatansoft-sms-service/pkg/event/schema"
 	"vatansoft-sms-service/pkg/mobilisimclient/model"
+	"vatansoft-sms-service/pkg/utils"
 )
 
 type OneToN struct {
@@ -34,7 +35,7 @@ func (otn OneToN) ToPayload() model.RequestOneToN {
 
 	for _, number := range otn.Numbers {
 		dto.Messages[0].Destinations = append(dto.Messages[0].Destinations, model.MessageDestination{
-			To:        number,
+			To:        utils.CleanupPhone(number),
 			MessageID: "1",
 		})
 	}

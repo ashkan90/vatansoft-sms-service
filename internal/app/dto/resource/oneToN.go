@@ -1,7 +1,9 @@
 package resource
 
 import (
+	"vatansoft-sms-service/pkg/constants"
 	"vatansoft-sms-service/pkg/mobilisimclient/model"
+	"vatansoft-sms-service/pkg/utils"
 )
 
 type OneToNResource struct {
@@ -13,7 +15,17 @@ type OneToNResource struct {
 }
 
 func NewOneToNResource(r *model.ResourceOneToN) OneToNResource {
-	var res OneToNResource
+	var res = OneToNResource{
+		Status:      constants.MobilisimSuccessStatus,
+		Description: constants.MobilisimSuccessDescription,
+	}
+
+	if err := r.Error(); err != "" {
+		res.Status = constants.MobilisimErrorStatus
+		res.Description = utils.GetErrorDescription(err)
+		return res
+	}
+
 	for _, message := range r.Messages {
 		// reject olmayan responseları handleliyoruz ama kimin reject olduğunu hiç bir şekilde öğrenemeyecek.
 		// Bunun rapor edilmesi gerektiği aşikar fakat nasıl bi yol izlenmeli fikrim yok.

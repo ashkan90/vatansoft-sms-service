@@ -5,6 +5,14 @@ const (
 
 	MobilisimOneToNEventType = "oneToN"
 
-	MobilisimRejectedStatus = "REJECTED"
-	MobilisimPendingStatus  = "PENDING"
+	MobilisimRejectedStatus      = "REJECTED"
+	MobilisimUndeliverableStatus = "UNDELIVERABLE"
+	MobilisimPendingStatus       = "PENDING"
+)
+
+const (
+	MobilisimSystemError        = "SYSTEM"
+	MobilisimUnauthorizedError  = "UNAUTHORIZED"
+	MobilisimInvalidSenderError = "SENDER ERROR"
+	MobilisimCreditError        = "CREDIT"
 )

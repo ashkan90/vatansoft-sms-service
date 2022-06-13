@@ -9,7 +9,7 @@ import (
 )
 
 type MobilisimOrchestrator interface {
-	OneToN(ctx context.Context, req request.OneToN) (*model.ResourceOneToN, error)
+	OneToN(ctx context.Context, dto request.OneToN) (*model.ResourceOneToN, error)
 }
 
 type mobilisimOrchestrator struct {
@@ -22,10 +22,10 @@ func NewMobilisimOrchestrator(ms mobilisim.Service) MobilisimOrchestrator {
 	}
 }
 
-func (m *mobilisimOrchestrator) OneToN(ctx context.Context, req request.OneToN) (*model.ResourceOneToN, error) {
-	if len(req.Numbers) > constants.MaxMessageInTime {
-		m.mobilisimService.OneToNEvent(ctx, req.ToEvent())
+func (m *mobilisimOrchestrator) OneToN(ctx context.Context, dto request.OneToN) (*model.ResourceOneToN, error) {
+	if len(dto.Numbers) > constants.MaxMessageInTime {
+		m.mobilisimService.OneToNEvent(ctx, dto.ToEvent())
 		return nil, nil
 	}
-	return m.mobilisimService.OneToN(ctx, req.ToPayload())
+	return m.mobilisimService.OneToN(ctx, dto.ToPayload())
 }

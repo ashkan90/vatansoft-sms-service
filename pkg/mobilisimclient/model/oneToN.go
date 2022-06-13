@@ -27,8 +27,17 @@ type MessageLanguage struct {
 	LockingShift bool   `json:"lockingShift"`
 }
 
+type MobilisimRequestErrors struct {
+	Cause MobilisimServiceException `json:"serviceException"`
+}
+
+type MobilisimServiceException struct {
+	MessageID string `json:"messageId"`
+}
+
 type ResourceOneToN struct {
-	Messages []ResourceOneToNMessages
+	Messages []ResourceOneToNMessages `json:"messages"`
+	Errors   *MobilisimRequestErrors  `json:"requestErrors,omitempty"`
 }
 
 type ResourceOneToNMessages struct {
@@ -44,6 +53,22 @@ type ResourceOneToNStatus struct {
 	Description string `json:"description"`
 }
 
-func (r ResourceOneToNMessages) IsRejected() bool {
-	return r.Status.Status == schema.MobilisimRejectedStatus
+func (r ResourceOneToN) Error() string {
+	if r.Errors == nil {
+		return ""
+	}
+
+	return r.Errors.Cause.MessageID
+}
+
+func (rm ResourceOneToNMessages) IsRejected() bool {
+	return rm.Status.IsRejected() || rm.Status.IsUndeliverable()
+}
+
+func (rs ResourceOneToNStatus) IsRejected() bool {
+	return rs.Status == schema.MobilisimRejectedStatus
+}
+
+func (rs ResourceOneToNStatus) IsUndeliverable() bool {
+	return rs.Status == schema.MobilisimUndeliverableStatus
 }
