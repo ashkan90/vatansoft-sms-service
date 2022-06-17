@@ -26,7 +26,12 @@ func main() {
 	}
 	sv := initServer(app)
 
-	go log.Fatal(sv.Listen(":8080"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":8080"
+	}
+
+	go log.Fatal(sv.Listen(":" + port))
 
 	graceful(logger, sv)
 }
