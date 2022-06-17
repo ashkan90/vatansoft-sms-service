@@ -28,14 +28,15 @@ func (m *mobilisimHandler) OneToN(c *fiber.Ctx) error {
 	var req request.OneToN
 	if bErr := c.BodyParser(&req); bErr != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body parser gave error. For detail: " + bErr.Error(),
+			"error":  "Body parser gave error.",
+			"detail": bErr,
 		})
 	}
 
 	if vErr := utils.ValidateRequestWithCtx(c.Context(), req); vErr != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"error":   "Unprocessable entity given.",
-			"details": vErr,
+			"error":  "Unprocessable entity given.",
+			"detail": vErr,
 		})
 	}
 
