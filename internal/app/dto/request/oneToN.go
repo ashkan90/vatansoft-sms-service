@@ -19,24 +19,18 @@ func (otn OneToN) ToPayload() model.RequestOneToN {
 	var dto = model.RequestOneToN{
 		Messages: []model.OneToNMessage{
 			{
-				From:            otn.Sender,
-				Text:            otn.Message,
-				CallbackData:    "cb",
-				Transliteration: otn.MessageType,
-				ValidityPeriod:  2880,
-				Language: model.MessageLanguage{
-					LanguageCode: "TR",
-					SingleShift:  false,
-					LockingShift: true,
-				},
+				From:             otn.Sender,
+				Text:             utils.RecomposeMessage(otn.Message, otn.MessageType),
+				CallbackData:     "cb",
+				LanguageEncoding: utils.GetMessageType(otn.MessageType),
+				ValidityPeriod:   2880,
 			},
 		},
 	}
 
 	for _, number := range otn.Numbers {
 		dto.Messages[0].Destinations = append(dto.Messages[0].Destinations, model.MessageDestination{
-			To:        utils.CleanupPhone(number),
-			MessageID: "1",
+			To: utils.CleanupPhone(number),
 		})
 	}
 

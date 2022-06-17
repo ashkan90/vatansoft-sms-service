@@ -7,24 +7,17 @@ type RequestOneToN struct {
 }
 
 type OneToNMessage struct {
-	From            string               `json:"from"`
-	Text            string               `json:"text"`
-	CallbackData    string               `json:"callbackData"`
-	Transliteration string               `json:"transliteration"`
-	ValidityPeriod  int                  `json:"validityPeriod"`
-	Destinations    []MessageDestination `json:"destinations"`
-	Language        MessageLanguage      `json:"language"`
+	From             string               `json:"from"`
+	Text             string               `json:"text"`
+	CallbackData     string               `json:"callbackData"`
+	LanguageEncoding string               `json:"encoding"`
+	ValidityPeriod   int                  `json:"validityPeriod"`
+	Destinations     []MessageDestination `json:"destinations"`
 }
 
 type MessageDestination struct {
-	To        string `json:"to"`
-	MessageID string `json:"messageId,omitempty"`
-}
-
-type MessageLanguage struct {
-	LanguageCode string `json:"languageCode"`
-	SingleShift  bool   `json:"singleShift"`
-	LockingShift bool   `json:"lockingShift"`
+	To        string  `json:"to"`
+	MessageID *string `json:"messageId,omitempty"`
 }
 
 type MobilisimRequestErrors struct {
@@ -41,9 +34,8 @@ type ResourceOneToN struct {
 }
 
 type ResourceOneToNMessages struct {
-	To        string               `json:"to"`
-	Status    ResourceOneToNStatus `json:"status"`
-	SMSLength int                  `json:"smsCount"`
+	To     string               `json:"to"`
+	Status ResourceOneToNStatus `json:"status"`
 }
 
 type ResourceOneToNStatus struct {
