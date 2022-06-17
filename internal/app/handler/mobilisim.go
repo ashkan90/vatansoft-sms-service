@@ -46,5 +46,5 @@ func (m *mobilisimHandler) OneToN(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(response.NewSuccessResponse(resource.NewOneToNResource(res)))
+	return c.JSON(response.NewSuccessResponse(resource.NewOneToNResource(res, req.Message, req.MessageType)))
 }

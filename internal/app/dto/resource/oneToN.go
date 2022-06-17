@@ -14,7 +14,7 @@ type OneToNResource struct {
 	SMSQuantity int    `json:"quantity"`
 }
 
-func NewOneToNResource(r *model.ResourceOneToN) OneToNResource {
+func NewOneToNResource(r *model.ResourceOneToN, mText, mType string) OneToNResource {
 	var res = OneToNResource{
 		Status:      constants.MobilisimSuccessStatus,
 		Description: constants.MobilisimSuccessDescription,
@@ -31,7 +31,7 @@ func NewOneToNResource(r *model.ResourceOneToN) OneToNResource {
 		// Bunun rapor edilmesi gerektiği aşikar fakat nasıl bi yol izlenmeli fikrim yok.
 		if !message.IsRejected() {
 			res.NumberCount += 1
-			res.SMSQuantity += message.SMSLength
+			res.SMSQuantity += utils.GetMessageQuantity(mText, mType)
 		}
 	}
 

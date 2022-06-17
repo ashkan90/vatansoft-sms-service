@@ -15,3 +15,8 @@ const (
 	MobilisimInvalidSenderError = "Geçersiz gönderici adı."
 	MobilisimCreditError        = "İşlemi yapmak için yeterli krediniz bulunmamakta."
 )
+
+const (
+	MobilisimEnglishMessageDecoder = "normal"
+	MobilisimTurkishMessageDecoder = "turkish"
+)

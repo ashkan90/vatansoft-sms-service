@@ -16,3 +16,8 @@ const (
 	MobilisimInvalidSenderError = "SENDER ERROR"
 	MobilisimCreditError        = "CREDIT"
 )
+
+const (
+	MobilisimEnglishMessageDecoder = "default"
+	MobilisimTurkishMessageDecoder = "tr"
+)
