@@ -1,6 +1,8 @@
 package model
 
-import "vatansoft-sms-service/pkg/event/schema"
+import (
+	"vatansoft-sms-service/pkg/event/schema"
+)
 
 type RequestOneToN struct {
 	Messages []OneToNMessage `json:"messages"`

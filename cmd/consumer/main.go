@@ -1,23 +1,34 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/streadway/amqp"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+	"vatansoft-sms-service/configs/consumer"
 	"vatansoft-sms-service/pkg/constants"
+	"vatansoft-sms-service/pkg/event/schema"
 	"vatansoft-sms-service/pkg/rabbit"
 )
 
 var messagingClient rabbit.Client
 
 func main() {
-	fmt.Println("Starting " + constants.AppName + "...")
+	fmt.Println("Starting " + constants.AppConsumerName + "...")
 
-	initializeMessaging(logrus.New())
+	conf, err := initConfig()
+	if err != nil {
+		panic("<consumer> " + err.Error())
+	}
+
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	initializeMessaging(logrus.New(), conf.Consumer.Rabbit)
 
 	// Makes sure connection is closed when service exits.
 	handleSigterm(func() {
@@ -25,7 +36,24 @@ func main() {
 			messagingClient.Close()
 		}
 	})
-	//service.StartWebServer(viper.GetString("server_port"))
+
+	f := fiber.New()
+
+	go log.Fatal(f.Listen(":1598"))
+
+	graceful(f)
+}
+
+func graceful(a *fiber.App) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+
+	<-quit
+	_, cancel := context.WithTimeout(context.Background(), constants.AppGracefulTimeout*time.Second)
+	defer cancel()
+	if err := a.Shutdown(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // The callback function that's invoked whenever we get a message on the "vipQueue"
@@ -33,21 +61,16 @@ func onMessage(delivery amqp.Delivery) {
 	fmt.Printf("Got a message: %v\n", string(delivery.Body))
 }
 
-func initializeMessaging(l *logrus.Logger) {
-	if !viper.IsSet("amqp_server_url") {
+func initializeMessaging(l *logrus.Logger, mqConf consumer.RabbitConfig) {
+	if mqConf.URL == "" {
 		panic("No 'broker_url' set in configuration, cannot start")
 	}
 	messagingClient = rabbit.NewMessagingClient(l)
-	messagingClient.ConnectToBroker(viper.GetString("amqp_server_url"))
+	messagingClient.ConnectToBroker(mqConf.URL)
 
 	// Call the subscribe method with queue name and callback function
-	err := messagingClient.SubscribeToQueue("vip_queue", constants.AppName, onMessage)
-	failOnError(err, "Could not start subscribe to vip_queue")
-
-	err = messagingClient.Subscribe(viper.GetString("config_event_bus"), "topic", constants.AppName, func(delivery amqp.Delivery) {
-
-	})
-	failOnError(err, "Could not start subscribe to "+viper.GetString("config_event_bus")+" topic")
+	err := messagingClient.SubscribeToQueue(schema.MobilisimQueueName, constants.AppConsumerName, onMessage)
+	failOnError(err, "Could not start subscribe to "+schema.MobilisimQueueName)
 }
 
 func handleSigterm(handleExit func()) {
@@ -64,6 +87,6 @@ func handleSigterm(handleExit func()) {
 func failOnError(err error, msg string) {
 	if err != nil {
 		fmt.Printf("%s: %s", msg, err)
-		panic(fmt.Sprintf("%s: %s", msg, err))
+		log.Fatal(fmt.Sprintf("%s: %s", msg, err))
 	}
 }

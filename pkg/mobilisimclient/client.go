@@ -14,7 +14,7 @@ type Client interface {
 	PrepareHeaders() map[string]string
 	MobilisimURL(uri string) string
 
-	OneToN(ctx context.Context, r model.RequestOneToN) (*model.ResourceOneToN, error)
+	OneToN(ctx context.Context, r model.RequestOneToN) error
 }
 
 type Config struct {

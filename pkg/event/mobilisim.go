@@ -2,7 +2,8 @@ package event
 
 import (
 	"encoding/json"
-	"vatansoft-sms-service/pkg/response"
+	"vatansoft-sms-service/pkg/constants"
+	"vatansoft-sms-service/pkg/utils"
 )
 
 type OneToNEvent struct {
@@ -18,6 +19,13 @@ type OneToNEventData struct {
 	Numbers     []string `json:"numbers"`
 }
 
+type ResourceOneToNEvent struct {
+	Status      string `json:"status"`
+	Description string `json:"description"`
+	NumberCount int    `json:"numberCount"`
+	SMSQuantity int    `json:"quantity"`
+}
+
 func (e *OneToNEvent) Type() string {
 	return e.EventType
 }
@@ -26,8 +34,13 @@ func (e *OneToNEvent) Data() interface{} {
 	return e
 }
 
-func (e *OneToNEvent) Response() interface{} {
-	return response.NewMobilisimSuccessResponse(e.EventData.Message, e.EventData.MessageType)
+func (e *OneToNEvent) ToAsyncPayload(numLn int) *ResourceOneToNEvent {
+	return &ResourceOneToNEvent{
+		Status:      constants.MobilisimSuccessStatus,
+		Description: constants.MobilisimSuccessDescription,
+		NumberCount: numLn,
+		SMSQuantity: utils.GetMessageQuantity(e.EventData.Message, e.EventData.MessageType) * numLn,
+	}
 }
 
 func (e *OneToNEvent) Free() {
@@ -35,7 +48,7 @@ func (e *OneToNEvent) Free() {
 }
 
 func (e OneToNEvent) ToPrepareQueue(numbers []string) []byte {
-	var event = OneToNEvent{
+	var event = &OneToNEvent{
 		EventType: e.EventType,
 		EventData: OneToNEventData{
 			Message:     e.EventData.Message,

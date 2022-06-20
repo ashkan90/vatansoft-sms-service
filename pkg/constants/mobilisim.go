@@ -18,5 +18,6 @@ const (
 
 const (
 	MobilisimEnglishMessageDecoder = "normal"
+	MobilisimUnicodeMessageDecoder = "unicode"
 	MobilisimTurkishMessageDecoder = "turkish"
 )

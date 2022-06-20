@@ -26,6 +26,10 @@ func GetMessageType(mType string) string {
 		return schema.MobilisimEnglishMessageDecoder
 	}
 
+	if mType == constants.MobilisimUnicodeMessageDecoder {
+		return schema.MobilisimUnicodeMessageDecoder
+	}
+
 	return schema.MobilisimTurkishMessageDecoder
 }
 

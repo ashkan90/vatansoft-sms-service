@@ -4,12 +4,11 @@ import (
 	"context"
 	"vatansoft-sms-service/internal/app/dto/request"
 	"vatansoft-sms-service/internal/app/mobilisim"
-	"vatansoft-sms-service/pkg/constants"
-	"vatansoft-sms-service/pkg/mobilisimclient/model"
+	"vatansoft-sms-service/pkg/event"
 )
 
 type MobilisimOrchestrator interface {
-	OneToN(ctx context.Context, dto request.OneToN) (*model.ResourceOneToN, error)
+	OneToN(ctx context.Context, dto request.OneToN) (*event.ResourceOneToNEvent, error)
 }
 
 type mobilisimOrchestrator struct {
@@ -22,10 +21,7 @@ func NewMobilisimOrchestrator(ms mobilisim.Service) MobilisimOrchestrator {
 	}
 }
 
-func (m *mobilisimOrchestrator) OneToN(ctx context.Context, dto request.OneToN) (*model.ResourceOneToN, error) {
-	if len(dto.Numbers) > constants.MaxMessageInTime {
-		m.mobilisimService.OneToNEvent(ctx, dto.ToEvent())
-		return nil, nil
-	}
-	return m.mobilisimService.OneToN(ctx, dto.ToPayload())
+func (m *mobilisimOrchestrator) OneToN(ctx context.Context, dto request.OneToN) (*event.ResourceOneToNEvent, error) {
+	return m.mobilisimService.OneToNEvent(ctx, dto.ToEvent()), nil
+
 }

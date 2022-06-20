@@ -2,7 +2,6 @@ package event
 
 import (
 	"encoding/json"
-	"errors"
 	"vatansoft-sms-service/pkg/event/schema"
 )
 
@@ -24,7 +23,7 @@ func NewEventCreator() Creation {
 func (ec *eventCreator) Make(t string, data []byte) (Factory, error) {
 	event := ec.getEventByType(t)
 	if event == nil {
-		return nil, errors.New("unknown event type")
+		return nil, schema.MobilisimUnexpectedEventType
 	}
 
 	if err := json.Unmarshal(data, &event); err != nil {

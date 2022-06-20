@@ -11,7 +11,7 @@ import (
 
 type Client interface {
 	ConnectToBroker(connectionString string) error
-	PublishOnQueue(msg []byte, queueName string) error
+	PublishOnQueue(msg []byte, queueName, eventType string) error
 	Subscribe(exchangeName string, exchangeType string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	SubscribeToQueue(queueName string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	Close()
@@ -44,7 +44,7 @@ func (m *MessagingClient) ConnectToBroker(connectionString string) error {
 	return nil
 }
 
-func (m *MessagingClient) PublishOnQueue(body []byte, queueName string) error {
+func (m *MessagingClient) PublishOnQueue(body []byte, queueName, eventType string) error {
 	if m.conn == nil {
 		m.logger.Panic("Tried to send message before connection was initialized. Don't do that.")
 	}
@@ -69,6 +69,8 @@ func (m *MessagingClient) PublishOnQueue(body []byte, queueName string) error {
 		false,
 		amqp.Publishing{
 			ContentType: "application/json",
+			Type:        eventType,
+			Timestamp:   time.Now(),
 			Body:        body,
 		})
 	m.logger.WithTime(time.Now()).Printf("A message was sent to queue %v: %v", queueName, body)
@@ -136,6 +138,7 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 	ch, err := m.conn.Channel()
 	failOnError(m.logger, err, "Failed to open a channel")
 
+	ch.NotifyClose()
 	m.logger.Printf("Declaring Queue (%s)", queueName)
 	queue, err := ch.QueueDeclare(
 		queueName, // name of the queue

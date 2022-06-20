@@ -1,5 +1,7 @@
 package schema
 
+import "errors"
+
 const (
 	MobilisimQueueName = "mobilisimSMSQueue"
 
@@ -19,5 +21,11 @@ const (
 
 const (
 	MobilisimEnglishMessageDecoder = "default"
+	MobilisimUnicodeMessageDecoder = "unicode"
 	MobilisimTurkishMessageDecoder = "tr"
+)
+
+var (
+	MobilisimUnexpectedEventType   = errors.New("event: unexpected event type")
+	MobilisimUnexpectedHandlerType = errors.New("handler: unexpected event type")
 )

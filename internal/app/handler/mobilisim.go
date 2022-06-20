@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"vatansoft-sms-service/internal/app/dto/request"
-	"vatansoft-sms-service/internal/app/dto/resource"
 	"vatansoft-sms-service/internal/app/orchestration"
 	"vatansoft-sms-service/pkg/response"
 	"vatansoft-sms-service/pkg/utils"
@@ -47,5 +46,5 @@ func (m *mobilisimHandler) OneToN(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(response.NewSuccessResponse(resource.NewOneToNResource(res, req.Message, req.MessageType)))
+	return c.JSON(response.NewSuccessResponse(res))
 }

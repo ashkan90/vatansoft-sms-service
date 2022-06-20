@@ -1,8 +1,8 @@
 FROM golang:1.18-alpine as build
 
-WORKDIR /app
+WORKDIR /consumer
 
-VOLUME ["/app"]
+VOLUME ["/consumer"]
 
 COPY go.mod ./
 COPY go.sum ./
@@ -10,12 +10,12 @@ RUN go mod download
 
 COPY .. .
 
-RUN GOOS=linux CGO_ENABLED=0 go build -o /bit-driver-location-service ./cmd/app
+RUN GOOS=linux CGO_ENABLED=0 go build -o /vatansoft-sms-consumer-service ./cmd/consumer
 
 FROM alpine
-COPY --from=build /bit-driver-location-service ./app
+COPY --from=build /vatansoft-sms-consumer-service ./consumer
 
 COPY ./server.yaml ./
 EXPOSE 8080
 
-CMD [ "./app" ]
+CMD [ "./consumer" ]
