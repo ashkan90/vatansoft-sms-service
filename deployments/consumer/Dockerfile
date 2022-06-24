@@ -16,6 +16,6 @@ FROM alpine
 COPY --from=build /vatansoft-sms-consumer-service ./consumer
 
 COPY ./server.yaml ./
-EXPOSE 8080
+EXPOSE 3000
 
 CMD [ "./consumer" ]

@@ -2,7 +2,6 @@ package rabbit
 
 import (
 	"context"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 )
@@ -10,19 +9,16 @@ import (
 type ConsumerGroupHandler interface {
 	Ready()
 	Status() chan bool
+
+	ConsumeClaim(ctx context.Context, queue <-chan amqp.Delivery)
 }
 
 type CustomHandler interface {
 	Do(ctx context.Context, delivery amqp.Delivery) error
 }
 
-type IConsumerManager interface {
+type ConsumerManager interface {
 	Process(ctx context.Context, delivery amqp.Delivery) error
-}
-
-type ConsumerSessionMessage struct {
-	Session sarama.ConsumerGroupSession
-	Message *sarama.ConsumerMessage
 }
 
 type consumerManager struct {
@@ -31,7 +27,7 @@ type consumerManager struct {
 	//newRelicInstance nrclient.INewRelicInstance
 }
 
-func NewConsumerManager(l *logrus.Logger, ch CustomHandler /*ni nrclient.INewRelicInstance*/) IConsumerManager {
+func NewConsumerManager(l *logrus.Logger, ch CustomHandler /*ni nrclient.INewRelicInstance*/) ConsumerManager {
 	return &consumerManager{
 		logger:        l,
 		customHandler: ch,
@@ -40,27 +36,27 @@ func NewConsumerManager(l *logrus.Logger, ch CustomHandler /*ni nrclient.INewRel
 }
 
 func (cm *consumerManager) Process(ctx context.Context, delivery amqp.Delivery) error {
-	txn := cm.newRelicInstance.Application().StartTransaction(fmt.Sprintf("rentId:%s", string(msg.Key)))
-	txn.AddAttribute("event.topic", msg.Topic)
-	txn.AddAttribute("event.partition", msg.Partition)
-	txn.AddAttribute("event.offset", msg.Offset)
+	//txn := cm.newRelicInstance.Application().StartTransaction(fmt.Sprintf("rentId:%s", string(msg.Key)))
+	//txn.AddAttribute("event.topic", msg.Topic)
+	//txn.AddAttribute("event.partition", msg.Partition)
+	//txn.AddAttribute("event.offset", msg.Offset)
+	//
+	//defer txn.End()
 
-	defer txn.End()
-
-	ctx = newrelic.NewContext(ctx, txn)
+	//ctx = newrelic.NewContext(ctx, txn)
 	if err := cm.customHandler.Do(ctx, delivery); err != nil {
-		cm.logger.WithField("event", cm.prepareLogFields(delivery)).WithError(err).Error("processing error")
+		//cm.logger.WithField("event", cm.prepareLogFields(delivery)).WithError(err).Error("processing error")
 	}
 
 	return nil
 }
 
-func (cm *consumerManager) prepareLogFields(delivery amqp.Delivery) logrus.Fields {
-	return logrus.Fields{
-		"topic":     msg.Topic,
-		"key":       string(msg.Key),
-		"partition": msg.Partition,
-		"offset":    msg.Offset,
-		"body":      string(msg.Value),
-	}
-}
+//func (cm *consumerManager) prepareLogFields(delivery amqp.Delivery) logrus.Fields {
+//	return logrus.Fields{
+//		"topic":     msg.Topic,
+//		"key":       string(msg.Key),
+//		"partition": msg.Partition,
+//		"offset":    msg.Offset,
+//		"body":      string(msg.Value),
+//	}
+//}

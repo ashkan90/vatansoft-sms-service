@@ -19,11 +19,12 @@ func boot(l *logrus.Logger, appConf consumer.Application) (*server, error) {
 	var mqConsumer = rabbit.NewMessagingClient(l)
 
 	var (
-		consumerService     = consumerservice.NewMobilisimConsumerService(l, mobilisimClient, mqConsumer)
+		consumerService     = consumerservice.NewMobilisimConsumerService(l, mobilisimClient)
 		eventHandlerFactory = listener.NewEventHandlerFactory(consumerService)
 		eventManager        = eventmanager.NewEventManager(eventHandlerFactory, event.NewEventCreator())
 		customHandler       = listener.NewCustomHandler(l, eventManager)
-		consumerGroup       = rabbit.NewConsumerManager(l, customHandler)
+		consumerManager     = rabbit.NewConsumerManager(l, customHandler)
+		consumerGroup       = rabbit.NewSyncHandler(l, consumerManager)
 	)
 
 	// Open broker connection
@@ -35,7 +36,7 @@ func boot(l *logrus.Logger, appConf consumer.Application) (*server, error) {
 	return &server{
 		logger:          l,
 		mobilisimClient: mobilisimClient,
-		mqProducer:      mqProducer,
+		mqInstance:      rabbit.NewConsumerInstance(l, mqConsumer, consumerGroup),
 	}, nil
 }
 

@@ -15,12 +15,19 @@ services:
       - rabbit-mq-node
     restart: always
 
-#  consumer:
-#    build:
-#      context: .
-#      dockerfile: deployments/consumer/Dockerfile
-#    depends_on:
-#      - rabbit-mq-node
+  vatansoft-sms-consumer-service:
+    container_name: vatansoft-sms-consumer-service
+    build:
+      context: .
+      dockerfile: deployments/consumer/dev.Dockerfile
+    volumes:
+      - ./:/app,
+    networks:
+      - network-sms-service
+    depends_on:
+      - rabbit-mq-node
+    restart: always
+
 
   rabbit-mq-node:
     image: "rabbitmq:3-management"

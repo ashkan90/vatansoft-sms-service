@@ -28,6 +28,12 @@ func main() {
 	}
 
 	logrus.SetFormatter(&logrus.JSONFormatter{})
+	l := initLogger()
+
+	app, err := boot(l, conf.Consumer)
+
+	sv := initServer(app)
+
 	initializeMessaging(logrus.New(), conf.Consumer.Rabbit)
 
 	// Makes sure connection is closed when service exits.
@@ -37,11 +43,13 @@ func main() {
 		}
 	})
 
-	f := fiber.New()
+	go app.mqInstance.Consume(context.Background(), schema.MobilisimQueueName)
 
-	go log.Fatal(f.Listen(":1598"))
+	<-app.mqInstance.Handler().Status()
 
-	graceful(f)
+	go log.Fatal(sv.Listen(":1598"))
+
+	graceful(sv)
 }
 
 func graceful(a *fiber.App) {

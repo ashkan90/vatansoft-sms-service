@@ -1,12 +1,14 @@
 package rabbit
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"log"
 	"time"
+	"vatansoft-sms-service/pkg/constants"
 )
 
 type Client interface {
@@ -15,6 +17,12 @@ type Client interface {
 	Subscribe(exchangeName string, exchangeType string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	SubscribeToQueue(queueName string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	Close()
+
+	Sync
+}
+
+type Sync interface {
+	Consume(ctx context.Context, queue string, handler ConsumerGroupHandler) error
 }
 
 type MessagingClient struct {
@@ -138,7 +146,6 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 	ch, err := m.conn.Channel()
 	failOnError(m.logger, err, "Failed to open a channel")
 
-	ch.NotifyClose()
 	m.logger.Printf("Declaring Queue (%s)", queueName)
 	queue, err := ch.QueueDeclare(
 		queueName, // name of the queue
@@ -163,6 +170,30 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 
 	go consumeLoop(msgs, handlerFunc)
 	return nil
+}
+
+func (m *MessagingClient) Consume(ctx context.Context, queue string, handler ConsumerGroupHandler) error {
+	for {
+		ch, err := m.conn.Channel()
+		if err != nil {
+			return err
+		}
+
+		deliveries, err := ch.Consume(
+			queue,
+			constants.AppConsumerName,
+			true,  // auto-ack
+			false, // exclusive
+			false, // no-local
+			false, // no-wait
+			nil,   // args
+		)
+		if err != nil {
+			return err
+		}
+
+		handler.ConsumeClaim(ctx, deliveries)
+	}
 }
 
 func (m *MessagingClient) Close() {
