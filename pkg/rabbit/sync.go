@@ -26,8 +26,10 @@ func (s *syncHandler) ConsumeClaim(ctx context.Context, queue <-chan amqp.Delive
 	for {
 		select {
 		case <-ctx.Done():
+			s.logger.Info("Context done...")
 			return
 		case delivery := <-queue:
+			s.logger.Info("Got a delivery... " + string(delivery.Body))
 			go func() {
 				errCh <- s.consumerManager.Process(ctx, delivery)
 			}()

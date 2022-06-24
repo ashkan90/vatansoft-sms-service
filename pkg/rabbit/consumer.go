@@ -8,6 +8,8 @@ import (
 type ConsumerInstance interface {
 	Handler() ConsumerGroupHandler
 	Consume(ctx context.Context, queue string)
+
+	Close()
 }
 
 type consumerInstance struct {
@@ -26,6 +28,10 @@ func NewConsumerInstance(l *logrus.Logger, c Client, h ConsumerGroupHandler) Con
 
 func (k *consumerInstance) Handler() ConsumerGroupHandler {
 	return k.handler
+}
+
+func (k *consumerInstance) Close() {
+	k.client.Close()
 }
 
 func (k *consumerInstance) Consume(ctx context.Context, queue string) {

@@ -26,10 +26,4 @@ func NewMobilisimConsumerService(l *logrus.Logger, mc mobilisimclient.Client) Se
 func (ms *mobilisimConsumerService) OneToN(ctx context.Context, req model.RequestOneToN) error {
 	ms.logger.WithField("req", req).Info("Incoming service request...")
 	return ms.mobilisimClient.OneToN(ctx, req)
-	//res, err := ms.mobilisimClient.OneToN(ctx, req)
-	//if err != nil {
-	//	ms.logger.Error(err)
-	//	return nil, errors.New("something went wrong at <OneToN>(...) " + err.Error())
-	//}
-	//return res, nil
 }
